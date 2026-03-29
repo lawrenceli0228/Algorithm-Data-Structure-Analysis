@@ -1,56 +1,56 @@
-# Assignment 3 — 哈希表（开放定址）
+# Assignment 3 — Hash Table (Open Addressing)
 
-## 题目描述
+## Description
 
-实现基于**线性探测**的固定大小哈希表，支持插入、删除、查找操作。
+Implement a fixed-size hash table using **linear probing** for collision resolution, supporting insert, delete, and lookup operations.
 
-## 设计
+## Design
 
-- **大小**：固定 26 个槽（对应字母 a-z）
-- **哈希函数**：取字符串**最后一个字符**的字母序号（`'a'=0, 'z'=25`）
-- **碰撞解决**：线性探测（从冲突位置向后顺序查找）
-- **删除策略**：墓碑标记（tombstone），槽状态为 `"tombstone"` 而非直接清空
+- **Size**: fixed at 26 slots (corresponding to letters a–z)
+- **Hash function**: index of the **last character** of the key string (`'a'=0, 'z'=25`)
+- **Collision resolution**: linear probing — scan forward from the hash position
+- **Deletion strategy**: tombstone marking; deleted slots are marked `"tombstone"` rather than cleared
 
-## 槽状态
+## Slot States
 
-| 状态 | 含义 |
-|------|------|
-| `"never used"` | 从未被使用，查找时遇到此状态即停止 |
-| `"occupied"` | 当前存有数据 |
-| `"tombstone"` | 已删除，查找时跳过，插入时可占用 |
+| State | Meaning |
+|-------|---------|
+| `"never used"` | Slot has never been written; search stops here |
+| `"occupied"` | Slot currently holds a key |
+| `"tombstone"` | Key was deleted; search skips over, insert may reclaim |
 
-## 输入格式
+## Input Format
 
-单行，操作序列：
+A single line of space-separated operations:
 
 ```
 A<word> D<word> ...
 ```
 
-- `A<word>`：插入字符串
-- `D<word>`：删除字符串（不存在则忽略）
+- `A<word>`: insert the string
+- `D<word>`: delete the string (no-op if not present)
 
-## 输出格式
+## Output Format
 
-按槽位顺序输出所有 `occupied` 的字符串，空格分隔。
+All `occupied` slots printed in slot order, space-separated.
 
-## 示例
+## Examples
 
 ```
-输入: Aabc Axyz
-输出: abc xyz
+Input:  Aabc Axyz
+Output: abc xyz
 
-输入: Aabc Axyz Dabc
-输出: xyz
+Input:  Aabc Axyz Dabc
+Output: xyz
 ```
 
-## 编译与运行
+## Build & Run
 
 ```bash
 g++ -o a3 main.cpp
 echo "Aabc Axyz Dabc" | ./a3
 ```
 
-## 已知问题
+## Known Issues
 
-- `add` 仅检查精确哈希位置是否重复，若同一字符串因碰撞存储在其他槽，再次插入时可能产生**重复条目**
+- `add` only checks for duplicates at the exact hash slot; if the key was stored at a probed position, re-inserting it may create **duplicate entries**

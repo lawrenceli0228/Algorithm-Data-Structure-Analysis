@@ -1,51 +1,51 @@
-# Assignment 4 — 最小代价生成树（建边/拆边）
+# Assignment 4 — Minimum Cost Spanning Tree (Build & Destroy)
 
-## 题目描述
+## Description
 
-给定一个无向图，以及每条边的**建边代价**和**拆边代价**，用最小总代价将图变为一棵**生成树**（所有节点连通且无环）。
+Given an undirected graph along with a **build cost** and a **destroy cost** for each edge, transform the graph into a **spanning tree** (fully connected, acyclic) at minimum total cost.
 
-- 若图中有环，需拆掉部分边（选代价最小的）
-- 若图不连通，需新建部分边（选代价最小的）
+- If the graph contains cycles, remove edges (cheapest first) until no cycle remains
+- If the graph is disconnected, add edges (cheapest first) until all nodes are connected
 
-## 算法流程
+## Algorithm
 
-1. **DFS 找连通分量** (`dfsLook`)：遍历邻接矩阵，找出所有连通子图
-2. **去环** (`goDestroy`)：对每个含环的连通分量，贪心删除代价最小的冗余边，保留连通性
-3. **连通各分量** (`goBuild`)：对多个独立连通分量，贪心选代价最小的边合并
+1. **Find connected components** (`dfsLook`): DFS over the adjacency matrix to identify all connected subgraphs
+2. **Remove cycles** (`goDestroy`): for each component containing a cycle, greedily remove the lowest-cost redundant edge while preserving connectivity
+3. **Connect components** (`goBuild`): greedily pick the lowest-cost edge between disconnected components until the graph is fully connected
 
-## 输入格式
+## Input Format
 
-单行，三个矩阵以空格分隔：
-
-```
-<邻接矩阵> <建边代价矩阵> <拆边代价矩阵>
-```
-
-- 矩阵行之间用 `,` 分隔，每个元素紧邻
-- 邻接矩阵：`0`（无边）或 `1`（有边）
-- 代价矩阵：大写字母 `A-Z`（代价 0-25）或小写字母 `a-z`（代价 26-51）
-
-## 示例
+A single line with three matrices separated by spaces:
 
 ```
-输入: 011,101,110 ABC,BAC,CAB ABC,BAC,CAB
-      （完全图K3，去一条最小代价边）
-输出: 1
-
-输入: 010,101,010 AAA,AAA,AAA AAA,AAA,AAA
-      （已是生成树，无需操作）
-输出: 0
+<adjacency matrix> <build cost matrix> <destroy cost matrix>
 ```
 
-## 编译与运行
+- Rows within each matrix are separated by `,`, elements are adjacent characters
+- Adjacency matrix: `0` (no edge) or `1` (edge exists)
+- Cost matrices: uppercase `A–Z` (cost 0–25) or lowercase `a–z` (cost 26–51)
+
+## Examples
+
+```
+Input:  011,101,110 ABC,BAC,CAB ABC,BAC,CAB
+        (complete graph K3 — remove the cheapest edge)
+Output: 1
+
+Input:  010,101,010 AAA,AAA,AAA AAA,AAA,AAA
+        (already a spanning tree — no operations needed)
+Output: 0
+```
+
+## Build & Run
 
 ```bash
 g++ -o a4 main.cpp
 echo "011,101,110 ABC,BAC,CAB ABC,BAC,CAB" | ./a4
 ```
 
-## 已知问题
+## Known Issues
 
-- `goBuild` 中存在 `break` 导致多于两个连通分量时无法完整合并
-- `goBuild` 只检查单向边代价（`aBuild[row][col]`），未考虑反向（对无向图可能漏掉更小代价）
-- `dfsLook` 的连通分量判断逻辑依赖 `value2` 的特定倍数条件，存在误判风险
+- `goBuild` contains a `break` that exits after one pass, causing incorrect results when there are more than two disconnected components
+- `goBuild` only checks one edge direction (`aBuild[row][col]`), potentially missing a lower-cost edge in the reverse direction
+- `dfsLook` uses fragile conditions based on specific multiples of `size` to decide which components to record, which may produce incorrect component lists
